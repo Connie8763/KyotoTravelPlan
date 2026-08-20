@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>家族旅行手冊 v2.0</title>
+  <style>
+    :root {
+      --primary: #c28859;
+      --primary-light: #f9f5f0;
+      --accent: #e07a5f;
+      --bg: #f7f6f2;
+      --card: #ffffff;
+      --text-main: #2b2d42;
+      --text-muted: #8d99ae;
+      --border: #edece8;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background-color: #2b2d42;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* 手機外框容器限制（電腦上看自動變成手機尺寸，手機看自動滿版） */
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      background-color: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    /* 頂部 Hero 區塊 */
+    .hero {
+      background: linear-gradient(135deg, #c28859, #a3693e);
+      color: #fff;
+      padding: 24px 20px 20px;
+      border-radius: 0 0 20px 20px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      background: rgba(255,255,255,0.25);
+      padding: 3px 8px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 { font-size: 20px; font-weight: 700; }
+    .hero-meta { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+
+    /* 導覽列 */
+    .nav-bar {
+      display: flex;
+      background: #fff;
+      margin: 12px 16px 0;
+      padding: 4px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nav-btn.active {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .content-body { padding: 16px; flex: 1; }
+    .section-view { display: none; }
+    .section-view.active { display: block; }
+
+    /* 天數切換子選單 */
+    .day-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .day-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .day-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 時間軸卡片 */
+    .timeline-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .time-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 44px;
+    }
+    .time-val { font-size: 13px; font-weight: 700; color: var(--primary); }
+    .card-main { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
+    
+    .btn-maps {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: #fff3ed;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: 1px solid rgba(224, 122, 95, 0.2);
+    }
+
+    /* 美食與定位按鈕 */
+    .locate-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(224, 122, 95, 0.25);
+    }
+    .locate-btn:active { transform: scale(0.99); }
+
+    .food-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .food-dist {
+      font-size: 12px;
+      font-weight: 700;
+      color: #2a9d8f;
+      margin-top: 4px;
+    }
+
+    /* 行前確認清單 */
+    .checklist-item {
+      background: var(--card);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .checklist-item input { accent-color: var(--primary); width: 16px; height: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- 頂部資訊 -->
+  <div class="hero">
+    <span class="badge">FAMILY TRIP 2026</span>
+    <h1>年度家族美好假期</h1>
+    <div class="hero-meta">📅 行程手冊・口袋清單・地圖導航</div>
+  </div>
+
+  <!-- 導覽頁籤 -->
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="switchNav('plan')">🗓 每日行程</button>
+    <button class="nav-btn" onclick="switchNav('food')">🍜 口袋美食</button>
+    <button class="nav-btn" onclick="switchNav('check')">🎒 必備清單</button>
+  </div>
+
+  <div class="content-body">
+    
+    <!-- 分頁一：行程 -->
+    <div id="view-plan" class="section-view active">
+      <div class="day-selector">
+        <button class="day-chip active" onclick="filterDay(1)">Day 1 出發</button>
+        <button class="day-chip" onclick="filterDay(2)">Day 2 探索</button>
+      </div>
+
+      <div id="day-1-list">
+        <div class="timeline-card">
+          <div class="time-col"><span class="time-val">09:00</span></div>
+          <div class="card-main">
+            <div class="card-title">集合與出發</div>
+            <div class="card-desc">全員準時會合，確認隨身行李與證件。</div>
+            <a class="btn-maps" href="https://www.google.com/maps" target="_blank">📍 查看路線</a>
+          </div>
+        </div>
+        <div class="timeline-card">
+          <div class="time-col"><span class="time-val">12:30</span></div>
+          <div class="card-main">
+            <div class="card-title">特色景觀午餐</div>
+            <div class="card-desc">預約了景觀餐廳，建議抵達前 15 分鐘聯絡。</div>
+            <a class="btn-maps" href="https://www.google.com/maps/search/?api=1&query=特色景觀餐廳" target="_blank">📍 導航前往</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="day-2-list" style="display: none;">
+        <div class="timeline-card">
+          <div class="time-col"><span class="time-val">10:30</span></div>
+          <div class="card-main">
+            <div class="card-title">戶外文化漫步</div>
+            <div class="card-desc">拍照熱點，走走逛逛大約預計停留 2 小時。</div>
+            <a class="btn-maps" href="https://www.google.com/maps" target="_blank">📍 查看景點</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分頁二：口袋美食 -->
+    <div id="view-food" class="section-view">
+      <button class="locate-btn" id="loc-btn" onclick="sortFoodByDistance()">📍 依照我目前位置排序（最近優先）</button>
+      <div id="food-container"></div>
+    </div>
+
+    <!-- 分頁三：行前清單 -->
+    <div id="view-check" class="section-view">
+      <div class="checklist-item">
+        <input type="checkbox" id="c1">
+        <label for="c1">身分證件 / 健保卡 / 護照</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="c2">
+        <label for="c2">行動電源與充電線</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="c3">
+        <label for="c3">雨具、防曬油、隨身常備藥</label>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // 1. 口袋美食資料庫（可自由替換）
+  const foods = [
+    { name: "道地老牌牛肉湯", lat: 23.0003, lng: 120.1656, desc: "肉質鮮嫩・附白飯肉燥", addr: "台南市安平區" },
+    { name: "手工白豆花專賣", lat: 23.0021, lng: 120.1624, desc: "招牌檸檬粉圓豆花", addr: "台南市安平區" },
+    { name: "海港直送熱炒生鮮", lat: 22.9912, lng: 120.1855, desc: "在地家庭聚餐首選", addr: "台南市中西區" }
+  ];
+
+  // 頂部主選單切換
+  function switchNav(type) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('view-' + type).classList.add('active');
+  }
+
+  // Day 1 / Day 2 子選單切換
+  function filterDay(day) {
+    document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('day-1-list').style.display = day === 1 ? 'block' : 'none';
+    document.getElementById('day-2-list').style.display = day === 2 ? 'block' : 'none';
+  }
+
+  // 距離計算公式 (km)
+  function calcDist(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  }
+
+  // 渲染美食畫面
+  function renderFoods(data) {
+    const box = document.getElementById('food-container');
+    box.innerHTML = data.map(item => `
+      <div class="food-card">
+        <div>
+          <div style="font-weight:700; font-size:14px;">${item.name}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${item.desc}</div>
+          ${item.dist !== undefined ? `<div class="food-dist">離你約 ${item.dist < 1 ? (item.dist*1000).toFixed(0) + ' 公尺' : item.dist.toFixed(1) + ' 公里'}</div>` : ''}
+        </div>
+        <a class="btn-maps" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name + ' ' + item.addr)}" target="_blank">導航</a>
+      </div>
+    `).join('');
+  }
+
+  // 定位測距
+  function sortFoodByDistance() {
+    const btn = document.getElementById('loc-btn');
+    if (!navigator.geolocation) return alert('此瀏覽器不支援定位');
+    
+    btn.textContent = '📍 正在定位中...';
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const { latitude: uLat, longitude: uLng } = pos.coords;
+        foods.forEach(f => f.dist = calcDist(uLat, uLng, f.lat, f.lng));
+        foods.sort((a, b) => a.dist - b.dist);
+        renderFoods(foods);
+        btn.textContent = '✅ 已依目前距離由近到遠排序';
+      },
+      () => {
+        alert('請允許手機存取位置資訊');
+        btn.textContent = '📍 依照我目前位置排序（最近優先）';
+      }
+    );
+  }
+
+  // 預設載入
+  renderFoods(foods);
+</script>
+</body>
+</html>
